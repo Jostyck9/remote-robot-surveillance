@@ -10,6 +10,38 @@
                     Roboto, Helvetica, Arial, sans-serif;
             }
 
+            #form {
+                background: rgba(0, 0, 0, 0.15);
+                padding: 0.25rem;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                height: 3rem;
+                box-sizing: border-box;
+                backdrop-filter: blur(10px);
+            }
+            .input {
+                border: none;
+                padding: 0 1rem;
+                flex-grow: 1;
+                border-radius: 2rem;
+                margin: 0.25rem;
+            }
+            .input:focus {
+                outline: none;
+            }
+            #form > button {
+                background: #333;
+                border: none;
+                padding: 0 1rem;
+                margin: 0.25rem;
+                border-radius: 3px;
+                outline: none;
+                color: #fff;
+            }
+
             #messages {
                 list-style-type: none;
                 margin: 0;
@@ -25,6 +57,21 @@
     </head>
     <body>
         <ul id="messages"></ul>
+        <form id="form" action="">
+            <input
+                id="inputType"
+                class="input"
+                autocomplete="off"
+                placeholder="type 'client' or 'robot'"
+            />
+            <input
+                id="inputUrl"
+                class="input"
+                autocomplete="off"
+                placeholder="url if 'robot'"
+            />
+            <button>Connect</button>
+        </form>
         <script
             src="https://cdn.socket.io/4.1.1/socket.io.min.js"
             integrity="sha384-cdrFIqe3RasCMNE0jeFG9xJHog/tgOVC1E9Lzve8LQN1g5WUHo0Kvk1mawWjxX7a"
@@ -37,6 +84,10 @@
                 url: "http://localhost:9000",
             };
             const socket = io(URL, { autoConnect: false });
+
+            var form = document.getElementById("form");
+            var inputType = document.getElementById("inputType");
+            var inputUrl = document.getElementById("inputUrl");
 
             function createField(msg) {
                 var item = document.createElement("li");
@@ -51,14 +102,45 @@
             });
 
             socket.on("connect", (_) => {
-                var item = document.createElement("li");
                 createField(
                     `Connected as a '${AUTH.device}' with url : ${AUTH.url}`
                 );
             });
 
-            socket.auth = AUTH;
-            socket.connect();
+            // a robot has connected
+            socket.on("robot connected", ({ robotId, url }) => {
+                createField(`Robot ${robotId} connected with : ${url}`);
+            });
+
+            // list of robots on connection
+            socket.on("robots", (robots) => {
+                robots.forEach(({ robotId, url }) => {
+                    createField(`Robot ${robotId} connected with : ${url}`);
+                });
+                if (robots.length === 0) {
+                    createField("No robot connected");
+                }
+            });
+
+            // a robot has disconnected
+            socket.on("robot disconnected", (robotId) => {
+                createField(`Robot ${robotId} disconnected`);
+            });
+
+            // connect
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                if (socket.connected) {
+                    socket.disconnect();
+                }
+                if (inputType.value) {
+                    AUTH.device = inputType.value;
+                    AUTH.url = inputUrl.value;
+                    socket.auth = AUTH;
+                    socket.connect();
+                }
+            });
         </script>
     </body>
 </html>

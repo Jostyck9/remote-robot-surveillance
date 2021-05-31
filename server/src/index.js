@@ -40,11 +40,40 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     console.log(`a ${socket.type} connected`);
 
+    /* When a client has connected, send him the available robots */
+    const robots = [];
+    if (socket.type === "client") {
+        for (let [id, socket] of io.of('/').sockets) {
+            if (socket.type === "robot") {
+                robots.push({
+                    robotId: id,
+                    url: socket.url
+                });
+            }
+        }
+    }
+    socket.emit("robots", robots);
+
+    /* Notify users that a robot has connected */
+    if (socket.type === "robot") {
+        socket.broadcast.emit("robot connected", {
+            robotId: socket.id,
+            url: socket.url,
+        });
+    }
+
     socket.on("disconnect", () => {
         console.log(`a ${socket.type} disconnected`);
+
+        /* Notify that a robot disconnected */
+        if (socket.type === "robot") {
+            socket.broadcast.emit("robot disconnected", socket.id);
+        }
     });
 
 });
+
+const PORT = process.env.PORT || 3000;
 
 server.listen(3000, () => {
     console.log('listening on *:3000');
