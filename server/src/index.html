@@ -10,17 +10,24 @@
                     Roboto, Helvetica, Arial, sans-serif;
             }
 
-            #form {
+            .form {
                 background: rgba(0, 0, 0, 0.15);
                 padding: 0.25rem;
                 position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
                 display: flex;
                 height: 3rem;
                 box-sizing: border-box;
                 backdrop-filter: blur(10px);
+            }
+            #formConnect {
+                bottom: 3rem;
+                left: 0;
+                right: 0;
+            }
+            #formCmd {
+                bottom: 0;
+                left: 0;
+                right: 0;
             }
             .input {
                 border: none;
@@ -32,7 +39,7 @@
             .input:focus {
                 outline: none;
             }
-            #form > button {
+            .form > button {
                 background: #333;
                 border: none;
                 padding: 0 1rem;
@@ -57,7 +64,7 @@
     </head>
     <body>
         <ul id="messages"></ul>
-        <form id="form" action="">
+        <form id="formConnect" class="form" action="">
             <input
                 id="inputType"
                 class="input"
@@ -72,6 +79,23 @@
             />
             <button>Connect</button>
         </form>
+
+        <form id="formCmd" class="form" action="">
+            <input
+                id="inputCmd"
+                class="input"
+                autocomplete="off"
+                placeholder="command"
+            />
+            <input
+                id="inputParam"
+                class="input"
+                autocomplete="off"
+                placeholder="parameter"
+            />
+            <button>launch</button>
+        </form>
+
         <script
             src="https://cdn.socket.io/4.1.1/socket.io.min.js"
             integrity="sha384-cdrFIqe3RasCMNE0jeFG9xJHog/tgOVC1E9Lzve8LQN1g5WUHo0Kvk1mawWjxX7a"
@@ -85,9 +109,13 @@
             };
             const socket = io(URL, { autoConnect: false });
 
-            var form = document.getElementById("form");
+            var formConnect = document.getElementById("formConnect");
             var inputType = document.getElementById("inputType");
             var inputUrl = document.getElementById("inputUrl");
+
+            var formCmd = document.getElementById("formCmd");
+            var inputCmd = document.getElementById("inputCmd");
+            var inputParam = document.getElementById("inputParam");
 
             function createField(msg) {
                 var item = document.createElement("li");
@@ -127,8 +155,13 @@
                 createField(`Robot ${robotId} disconnected`);
             });
 
+            // you are the master of the robot
+            socket.on("master", (robotId) => {
+                createField(`You are the master of robot ${robotId}`);
+            });
+
             // connect
-            form.addEventListener("submit", function (e) {
+            formConnect.addEventListener("submit", function (e) {
                 e.preventDefault();
 
                 if (socket.connected) {
@@ -139,6 +172,15 @@
                     AUTH.url = inputUrl.value;
                     socket.auth = AUTH;
                     socket.connect();
+                }
+            });
+
+            //command
+            formCmd.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                if (socket.connected) {
+                    socket.emit(inputCmd.value, inputParam.value);
                 }
             });
         </script>
