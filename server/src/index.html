@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Socket.IO chat</title>
+        <style>
+            body {
+                margin: 0;
+                padding-bottom: 3rem;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Helvetica, Arial, sans-serif;
+            }
+
+            #messages {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+            }
+            #messages > li {
+                padding: 0.5rem 1rem;
+            }
+            #messages > li:nth-child(odd) {
+                background: #efefef;
+            }
+        </style>
+    </head>
+    <body>
+        <ul id="messages"></ul>
+        <script
+            src="https://cdn.socket.io/4.1.1/socket.io.min.js"
+            integrity="sha384-cdrFIqe3RasCMNE0jeFG9xJHog/tgOVC1E9Lzve8LQN1g5WUHo0Kvk1mawWjxX7a"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            const URL = "http://localhost:3000";
+            const AUTH = {
+                device: "robot",
+                url: "http://localhost:9000",
+            };
+            const socket = io(URL, { autoConnect: false });
+
+            function createField(msg) {
+                var item = document.createElement("li");
+                item.textContent = msg;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+
+            socket.on("connect_error", (err) => {
+                console.log(err);
+                createField(err);
+            });
+
+            socket.on("connect", (_) => {
+                var item = document.createElement("li");
+                createField(
+                    `Connected as a '${AUTH.device}' with url : ${AUTH.url}`
+                );
+            });
+
+            socket.auth = AUTH;
+            socket.connect();
+        </script>
+    </body>
+</html>
