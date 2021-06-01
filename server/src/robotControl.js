@@ -57,8 +57,10 @@ function disconnectFromClients(io, robotSocket) {
     robotSocket.masterList.forEach(clientId => {
         const clientSocket = io.of('/').sockets.get(clientId);
 
-        clientSocket.controledRobot = "";
-        clientSocket.isControlling = false;
+        if (clientSocket) {
+            clientSocket.controledRobot = "";
+            clientSocket.isControlling = false;
+        }
     });
 }
 

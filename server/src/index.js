@@ -31,7 +31,7 @@ const initSocketClientProperties = (socket) => {
     socket.isControlling = false;
 }
 
-/* MiddleWare to save if device or robot connection */
+/* MiddleWare to save if client or robot connection */
 io.use((socket, next) => {
     const type = socket.handshake.auth.device;
 
