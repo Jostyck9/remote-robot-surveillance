@@ -27,6 +27,9 @@ function connectToRobot(io, clientSocket, robotId) {
             robotSocket.masterList.push(clientSocket.id);
             clientSocket.controledRobot = robotSocket.id;
             console.log(`Connect to robot: Client ${clientSocket.id} is added to control robot ${robotId}`)
+            if (robotSocket.masterList.length !== 1) {
+                clientSocket.emit("master wait", `you are in ${robotSocket.masterList.length} position in the waiting list for master, you will be notified when control is available for you`);
+            }
         } else {
             console.log(`Connect to robot : Client ${clientSocket.id} is already waiting to control robot ${robotId} queue : ${robotSocket.masterList.length}`)
         }

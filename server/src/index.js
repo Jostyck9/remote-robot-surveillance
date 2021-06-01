@@ -108,17 +108,17 @@ io.on('connection', (socket) => {
     // move a robot from master socket
     socket.on("move", (movement) => {
         if (socket.type === "robot") {
-            console.log("Error move : robot ${socket.id} cannot send move command");
+            console.log(`Error move : robot ${socket.id} cannot send move command`);
             socket.emit("move error", "A robot cannot send move command");
             return;
         }
         if (socket.isControlling === true) {
             socket.to(socket.controledRobot).emit("move", movement); // move robot
         } else if (socket.controledRobot === "") {
-            console.log("Error move : client ${socket.id} is not connected to a robot");
+            console.log(`Error move : client ${socket.id} is not connected to a robot`);
             socket.emit("move error", "You must be connected to a robot first and be master");
         } else {
-            console.log("Error move : client ${socket.id} is connected to robot ${socket.controledRobot} but not master so must wait");
+            console.log(`Error move : client ${socket.id} is connected to robot ${socket.controledRobot} but not master so must wait`);
             socket.emit("move error", "You must wait to be master");
         }
     })
