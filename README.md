@@ -140,7 +140,7 @@ The server will notify you with the event master wait when the robot is already 
 
 ```js
 socket.on("master wait", (msg) => {
-    createField(`Waiting for master : ${msg}`);
+    console.log(`Waiting for master : ${msg}`);
 });
 ```
 
@@ -153,7 +153,7 @@ The server will notify you with the event master when you can control the robot 
 
 ```js
 socket.on("master", (robotId) => {
-    createField(`You are the master of robot ${robotId}`);
+    console.log(`You are the master of robot ${robotId}`);
 });
 ```
 
@@ -164,7 +164,7 @@ if an error occurs, you will receive an event with a message
 
 ```js
 socket.on("master error", (msg) => {
-    createField(`Master error : ${msg}`);
+    console.log(`Master error : ${msg}`);
 });
 ```
 
@@ -176,7 +176,7 @@ An error will be sent on the event "master error";
 
 ```js
 socket.on("master error", (msg) => {
-    createField(`Master error : ${msg}`);
+    console.log(`Master error : ${msg}`);
 });
 ```
 
@@ -188,6 +188,6 @@ A robot will receive movement command.
 
 ```js
 socket.on("move", (mvt) => {
-    createField(`received move from client : ${mvt}`);
+    console.log(`received move from client : ${mvt}`);
 });
 ```
