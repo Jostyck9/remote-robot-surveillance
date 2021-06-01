@@ -32,6 +32,7 @@ function connectToRobot(io, clientSocket, robotId) {
         }
         updateMasterRobot(io, robotSocket);
     } else {
+        clientSocket.emit("master error", `robot ${robotId} not found`);
         console.log(`Connect to robot : robot ${robotId} not found ...`);
     }
 };
@@ -52,4 +53,13 @@ function disconnectFromRobot(io, clientSocket) {
     clientSocket.isControlling = false;
 };
 
-module.exports = { connectToRobot, disconnectFromRobot };
+function disconnectFromClients(io, robotSocket) {
+    robotSocket.masterList.forEach(clientId => {
+        const clientSocket = io.of('/').sockets.get(clientId);
+
+        clientSocket.controledRobot = "";
+        clientSocket.isControlling = false;
+    });
+}
+
+module.exports = { connectToRobot, disconnectFromRobot, disconnectFromClients };

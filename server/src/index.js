@@ -9,7 +9,7 @@ const io = new Server(server, {
     },
 });
 
-const { connectToRobot, disconnectFromRobot } = require('./robotControl');
+const { connectToRobot, disconnectFromRobot, disconnectFromClients } = require('./robotControl');
 
 app.get('/', (req, res) => {
     res.send({ "msg": "this server is only usable with socket" })
@@ -85,11 +85,10 @@ io.on('connection', (socket) => {
         /* Notify that a robot disconnected */
         if (socket.type === "robot") {
             socket.broadcast.emit("robot disconnected", socket.id);
-
-            // TODO enlever de la list des client le master de robot
+            disconnectFromClients(io, socket);
+        } else {
+            disconnectFromRobot(io, socket);
         }
-
-        // TODO faire déconnection client et enlever le controle de robot
     });
 
 

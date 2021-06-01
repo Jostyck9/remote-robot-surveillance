@@ -160,6 +160,10 @@
                 createField(`You are the master of robot ${robotId}`);
             });
 
+            socket.on("master error", (msg) => {
+                createField(`Master error : ${msg}`);
+            });
+
             // connect
             formConnect.addEventListener("submit", function (e) {
                 e.preventDefault();
