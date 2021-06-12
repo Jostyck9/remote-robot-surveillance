@@ -1,30 +1,32 @@
 import RPi.GPIO as GPIO
 import time
 
+class Motor:
+    def __init__(self, en, in1, in2):
+        self.EN = en
+        self.IN1 = in1
+        self.IN2 = in2
+
+        GPIO.setup([self.EN, self.IN1, self.IN2], GPIO.OUT, initial=GPIO.LOW)
+
+    def stop(self):
+        GPIO.output([self.EN, self.IN1, self.IN2], GPIO.LOW)
+
+    def forward(self):
+        GPIO.output([self.EN, self.IN1], GPIO.HIGH)
+        GPIO.output(self.IN2, GPIO.LOW)
+
+    def backward(self):
+        GPIO.output([self.EN, self.IN2], GPIO.HIGH)
+        GPIO.output(self.IN1, GPIO.LOW)
+
 class Robot:
     def __init__(self):
-        self.ENA = 33
-        self.IN1 = 37
-        self.IN2 = 35
-
-        self.ENB = 32
-        self.IN3 = 38
-        self.IN4 = 40
-
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)
 
-        # initialize EnA, In1 and In2
-        GPIO.setup(self.ENA, GPIO.OUT)#, initial=GPIO.LOW)
-        GPIO.setup(self.IN1, GPIO.OUT, initial=GPIO.LOW)
-        GPIO.setup(self.IN2, GPIO.OUT, initial=GPIO.LOW)
-
-        GPIO.setup(self.ENB, GPIO.OUT)#, initial=GPIO.LOW)
-        GPIO.setup(self.IN3, GPIO.OUT, initial=GPIO.LOW)
-        GPIO.setup(self.IN4, GPIO.OUT, initial=GPIO.LOW)
-
-        #self.pa = GPIO.PWM(self.ENA, 1000)
-        #self.pb = GPIO.PWM(self.ENB, 1000)
+        self.left_motor = Motor(33, 37, 35)
+        self.right_motor = Motor(32, 38, 40)
 
     def __del__(self):
         self.stop()
@@ -35,71 +37,36 @@ class Robot:
             print(e)
 
     def stop(self):
-        # Stop
-        #GPIO.output(self.ENA, GPIO.LOW)
-        GPIO.output(self.IN1, GPIO.LOW)
-        GPIO.output(self.IN2, GPIO.LOW)
-
-        #GPIO.output(self.ENB, GPIO.LOW)
-        GPIO.output(self.IN3, GPIO.LOW)
-        GPIO.output(self.IN4, GPIO.LOW)
-        #time.sleep(1)
-
-        #self.pa.ChangeDutyCycle(0)
-        #self.pb.ChangeDutyCycle(0)
+        self.left_motor.stop()
+        self.right_motor.stop()
 
     def forward(self):
-        GPIO.output(self.ENA, GPIO.HIGH)
-        GPIO.output(self.ENB, GPIO.HIGH)
-        # Forward
-        GPIO.output(self.IN1, GPIO.HIGH)
-        GPIO.output(self.IN2, GPIO.LOW)
-
-        GPIO.output(self.IN3, GPIO.HIGH)
-        GPIO.output(self.IN4, GPIO.LOW)
-        #time.sleep(1)
+        self.left_motor.forward()
+        self.right_motor.forward()
 
     def backward(self):
-        GPIO.output(self.ENA, GPIO.HIGH)
-        GPIO.output(self.ENB, GPIO.HIGH)
-        # Backward
-        GPIO.output(self.IN1, GPIO.LOW)
-        GPIO.output(self.IN2, GPIO.HIGH)
-
-        GPIO.output(self.IN3, GPIO.LOW)
-        GPIO.output(self.IN4, GPIO.HIGH)
-        #time.sleep(1)
+        self.left_motor.backward()
+        self.right_motor.backward()
 
     def right(self):
-        GPIO.output(self.ENA, GPIO.HIGH)
-        GPIO.output(self.ENB, GPIO.HIGH)
-        # Right
-        GPIO.output(self.IN1, GPIO.HIGH)
-        GPIO.output(self.IN2, GPIO.LOW)
-
-        GPIO.output(self.IN3, GPIO.LOW)
-        GPIO.output(self.IN4, GPIO.HIGH)
+        self.left_motor.forward()
+        self.right_motor.backward()
 
     def left(self):
-        GPIO.output(self.ENA, GPIO.HIGH)
-        GPIO.output(self.ENB, GPIO.HIGH)
-        # Left
-        GPIO.output(self.IN1, GPIO.LOW)
-        GPIO.output(self.IN2, GPIO.HIGH)
+        self.left_motor.backward()
+        self.right_motor.forward()
 
-        GPIO.output(self.IN3, GPIO.HIGH)
-        GPIO.output(self.IN4, GPIO.LOW)
-
-robot = Robot()
-time.sleep(1)
-robot.forward()
-time.sleep(1)
-robot.backward()
-time.sleep(1)
-robot.stop()
-time.sleep(1)
-robot.left()
-time.sleep(1)
-robot.right()
-time.sleep(1)
-robot.stop()
+if __name__ == "__main__":
+    robot = Robot()
+    time.sleep(1)
+    robot.forward()
+    time.sleep(1)
+    robot.backward()
+    time.sleep(1)
+    robot.stop()
+    time.sleep(1)
+    robot.left()
+    time.sleep(1)
+    robot.right()
+    time.sleep(1)
+    robot.stop()
