@@ -1,7 +1,7 @@
 import socketio
 from robot import Robot
 
-#robot = Robot()
+robot = Robot()
 sio = socketio.Client()
 
 @sio.event
@@ -33,5 +33,5 @@ def on_move(data):
     else:
         print("UNKNOWN DATA")
 
-sio.connect('http://192.168.0.42:3000', auth={"device": "robot", "url": "ajfdh"})
+sio.connect('http://192.168.0.43:3000', auth={"device": "robot", "url": "ajfdh"})
 sio.wait()

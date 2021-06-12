@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-import time
 
 class Motor:
     def __init__(self, en, in1, in2):
@@ -57,6 +56,7 @@ class Robot:
         self.right_motor.forward()
 
 if __name__ == "__main__":
+    import time
     robot = Robot()
     time.sleep(1)
     robot.forward()
