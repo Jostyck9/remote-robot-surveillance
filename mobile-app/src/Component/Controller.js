@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { RNGamePadSingle } from 'react-native-game-pad/components/single/single-joystick-buttons';
-import { WebView } from 'react-native-webview';
+import ControllerButton from './ControllerButton';
 
 export default class Controller extends Component {
 	render() {
 
 		return (
 			<View style={styles.container}>
-                <WebView 
-                />
-                <RNGamePadSingle
-                    options={{
-                        size: 40,
-                        color: 'white'
-                    }}
-                />
+                <View style={styles.subContainer}>
+                    <ControllerButton type='up'/>
+                    <ControllerButton type='down'/>
+                </View>
+                <View style={styles.subContainer}>
+                    <ControllerButton type='left'/>
+                    <ControllerButton type='right'/>
+                </View>
 			</View>
 		);
 	}
@@ -23,8 +22,18 @@ export default class Controller extends Component {
 
 const styles = StyleSheet.create({
   	container: {
-        width: '50%',
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
         height: '50%',
         position: 'absolute',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        bottom: 0,
+  	},
+    subContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginHorizontal: '5%'
   	},
 });
