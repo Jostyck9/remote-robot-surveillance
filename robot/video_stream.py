@@ -7,6 +7,9 @@ import cv2
 import jetson.inference
 import jetson.utils
 
+VIDEO_SOURCE = "http://192.168.0.48:4747/video"
+APP_PORT = 5000
+
 outputFrame = None
 frame = None
 lock = threading.Lock()
@@ -14,7 +17,7 @@ vid_lock = threading.Lock()
 
 app = Flask(__name__)
 
-vs = cv2.VideoCapture("http://192.168.0.48:4747/video")
+vs = cv2.VideoCapture(VIDEO_SOURCE)
 net = jetson.inference.detectNet("ssd-mobilenet-v2", threshold=0.8)
 time.sleep(2.0)
 
@@ -27,6 +30,7 @@ def get_continuous_video():
     while True:
         _, fr = vs.read()
         if _:
+            fr = cv2.rotate(fr, cv2.ROTATE_90_COUNTERCLOCKWISE)
             with vid_lock:
                 frame = fr.copy()
 
@@ -43,8 +47,14 @@ def detect_motion():
         detections = net.Detect(img, width, height)
         for detection in detections:
             class_name = net.GetClassDesc(detection.ClassID)
-            tmp_frame = cv2.rectangle(tmp_frame, (int(detection.Left), int(detection.Top)), (int(detection.Right), int(detection.Bottom)), (255,0,0), 2)
-            cv2.putText(tmp_frame, class_name, (int(detection.Left), int(detection.Top)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            tmp_frame = cv2.rectangle(tmp_frame,
+                                      (int(detection.Left), int(detection.Top)),
+                                      (int(detection.Right), int(detection.Bottom)),
+                                      (255,0,0), 2
+            )
+            cv2.putText(tmp_frame, class_name,
+                        (int(detection.Left), int(detection.Top)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2)
 
         with lock:
             outputFrame = tmp_frame.copy()
@@ -75,14 +85,9 @@ def video_feed():
     return Response(generate(), mimetype = "multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == '__main__':
-    # start a thread that will perform motion detection
-    t = threading.Thread(target=get_continuous_video)
-    t.daemon = True
+    t = threading.Thread(target=get_continuous_video, daemon=True)
     t.start()
-    t = threading.Thread(target=detect_motion)
-    t.daemon = True
+    t = threading.Thread(target=detect_motion, daemon=True)
     t.start()
-    # start the flask app
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True, use_reloader=False)
-# release the video stream pointer
+    app.run(host='0.0.0.0', port=APP_PORT, debug=True, threaded=True, use_reloader=False)
 vs.release()
