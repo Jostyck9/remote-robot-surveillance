@@ -1,15 +1,34 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Video } from 'expo-av';
-import video from '../../assets/test.mp4';
+import WebView from 'react-native-webview';
 
 export default class VideoPlayer extends Component {
 	render() {
+        const { url } = this.props;
+        const html = `
+            <html>
+                <head>
+                    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+                    <style type="text/css">
+                        body {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img src=${url} alt=${url}/>
+                </body>
+            </html>`
+
 		return (
 			<View style={styles.container}>
-                <Video source={ video }
-                rate={1} volume={1} isMuted={false} resizeMode="cover" shouldPlay
-                style={styles.videoContainer}/>
+                <WebView style={styles.videoContainer}
+                    containerStyle={styles.webContainer}
+                    originWhitelist={['*']}
+                    source={{ html: html }}
+                />
 			</View>
 		);
 	}
@@ -22,5 +41,10 @@ const styles = StyleSheet.create({
   	},
     videoContainer: {
         flex: 1,
+        backgroundColor: 'black',
+    },
+    webContainer: {
+        width: '100%',
+        height: '100%',
     }
 });
